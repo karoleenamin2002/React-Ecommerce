@@ -6,6 +6,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { instance } from "../instance";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -15,14 +16,10 @@ export default function Products() {
   const navigate = useNavigate();
   const API_KEY = "ca9045f61d5e8f3464c7a15a236c66b3";
 
-
   async function fetchPopular(pageNumber) {
-    const res = await axios.get(
-      `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&page=${pageNumber}`,
-    );
+    const res = await instance.get(`/movie/popular?page=${pageNumber}`);
     setProducts(res.data.results);
   }
-
 
   async function fetchSearch(query) {
     const res = await axios.get(
@@ -31,13 +28,11 @@ export default function Products() {
     setProducts(res.data.results);
   }
 
-
   useEffect(() => {
     if (search === "") {
       fetchPopular(page);
     }
   }, [page, search]);
-
 
   const handleSearch = (value) => {
     setSearch(value);
@@ -49,7 +44,6 @@ export default function Products() {
     }
   };
 
-
   function ProductDetails(id) {
     navigate(`/details/${id}`);
   }
@@ -60,43 +54,65 @@ export default function Products() {
         background: "#111",
         minHeight: "100vh",
         color: "#fff",
-        paddingBottom: "40px",
+        paddingTop: "90px",
+        paddingBottom: "50px",
       }}
     >
       <Container>
-        <input
-          type="text"
-          placeholder="Search movies..."
-          className="form-control my-3"
-          onChange={(e) => handleSearch(e.target.value)}
-        />
+        <div className="mb-5">
+          <input
+            type="text"
+            placeholder="Search movies..."
+            className="form-control form-control-lg"
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+        </div>
 
-        <Row lg={4} md={2} className="g-3">
+        <Row lg={4} md={3} sm={2} xs={1} className="g-4">
           {products.map((prod) => (
             <Col key={prod.id}>
               <Card
+                className="h-100 shadow-lg"
                 style={{
-                  width: "100%",
                   background: "#222",
                   color: "#fff",
                   border: "none",
-                  borderRadius: "10px",
+                  borderRadius: "15px",
                   overflow: "hidden",
-                  transition: "0.3s",
                 }}
               >
                 <Card.Img
                   variant="top"
-                  src={`https://image.tmdb.org/t/p/w500${prod.poster_path}`}
+                  src={
+                    prod.poster_path
+                      ? `https://image.tmdb.org/t/p/w500${prod.poster_path}`
+                      : "https://via.placeholder.com/500x750?text=No+Image"
+                  }
+                  style={{
+                    height: "400px",
+                    objectFit: "cover",
+                  }}
                 />
 
-                <Card.Body>
-                  <Card.Title>{prod.title}</Card.Title>
+                <Card.Body className="d-flex flex-column justify-content-between">
+                  <div>
+                    <Card.Title
+                      style={{
+                        minHeight: "50px",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {prod.title}
+                    </Card.Title>
 
-                  <Card.Text>⭐ Rating: {prod.vote_average}</Card.Text>
+                    <Card.Text>
+                      ⭐ Rating: {prod.vote_average?.toFixed(1)}
+                    </Card.Text>
+                  </div>
 
                   <Button
                     variant="danger"
+                    className="w-100 mt-3"
                     onClick={() => ProductDetails(prod.id)}
                   >
                     Details
@@ -108,16 +124,16 @@ export default function Products() {
         </Row>
 
         {search === "" && (
-          <div className="d-flex justify-content-center align-items-center gap-3 my-4">
+          <div className="d-flex justify-content-center align-items-center gap-3 mt-5">
             <Button
-              variant="dark"
+              variant="secondary"
               onClick={() => setPage((p) => Math.max(p - 1, 1))}
               disabled={page === 1}
             >
               Previous
             </Button>
 
-            <span>Page {page}</span>
+            <span className="fs-5 fw-bold">Page {page}</span>
 
             <Button variant="danger" onClick={() => setPage((p) => p + 1)}>
               Next

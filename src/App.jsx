@@ -6,7 +6,8 @@ import Details from "./components/products/details/details";
 import NavBar from "./components/navBar/navBar";
 import Footer from "./components/footer/footer";
 import About from "./components/about/about";
-
+// import MainComp from "./components/Parent/mainComp";
+// import NotFound from "./components/notFound/notFound";
 
 function App() {
   return (
